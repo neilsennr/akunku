@@ -543,17 +543,28 @@ function renderLR(){
    NERACA
 ═══════════════════════════════════ */
 function renderNeraca(){
-  var tI=sumBy('income'),tE=sumBy('expense'),net=tI-tE,kas=modal+net;
-  var totA=kas,totL=0,totEk=modal+net,totLE=totL+totEk,ok=Math.abs(totA-totLE)<1;
+  var tI=sumBy('income'),tE=sumBy('expense');
+  // Pisahkan capex (Peralatan & Inventaris) dari opex — capex mengurangi kas tapi membentuk aset tetap
+  var capex=txns.filter(function(t){return t.type==='expense'&&t.cat==='Peralatan & Inventaris'}).reduce(function(s,t){return s+t.amt},0);
+  var opex=tE-capex;
+  var net=tI-opex,kas=modal+tI-tE,asetTetap=capex;
+  var totA=kas+asetTetap,totL=0,totEk=modal+net,totLE=totL+totEk,ok=Math.abs(totA-totLE)<1;
 
   document.getElementById('neraca-banner').innerHTML='<div style="padding:13px 16px;border-radius:8px;display:flex;align-items:center;gap:12px;background:'+(ok?'rgba(63,185,80,.08)':'rgba(248,81,73,.08)')+';border:1px solid '+(ok?'rgba(63,185,80,.3)':'rgba(248,81,73,.3)')+'"><span style="font-size:20px">'+(ok?'✅':'❌')+'</span><div><div style="font-weight:600;color:'+(ok?'var(--green)':'var(--red)')+'">'+(ok?'Neraca Seimbang':'Neraca Tidak Seimbang')+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Aset = Liabilitas + Ekuitas = '+fmt(totA)+'</div></div></div>';
 
-  document.getElementById('neraca-aset').innerHTML=
+  var asetHTML=
     '<div class="nct">ASET</div>'+
-    '<div class="rrow"><div><div class="rc">Kas &amp; Bank</div><div style="font-size:11px;color:var(--subtle);margin-top:1px">Modal awal + laba bersih</div></div><span class="mono" style="color:var(--green)">'+fmt(kas)+'</span></div>'+
+    '<div class="nst">Aset Lancar</div>'+
+    '<div class="rrow"><div><div class="rc">Kas &amp; Bank</div><div style="font-size:11px;color:var(--subtle);margin-top:1px">Modal awal + laba operasional</div></div><span class="mono" style="color:var(--green)">'+fmt(kas)+'</span></div>'+
     '<div class="rrow"><span class="rc">Piutang Usaha</span><span class="mono" style="color:var(--muted)">Rp 0</span></div>'+
-    '<div class="rrow"><span class="rc">Persediaan Barang</span><span class="mono" style="color:var(--muted)">Rp 0</span></div>'+
-    '<div class="rsub" style="margin-top:10px"><span>Total Aset</span><span class="mono" style="color:var(--gold)">'+fmt(totA)+'</span></div>';
+    '<div class="rrow"><span class="rc">Persediaan Barang</span><span class="mono" style="color:var(--muted)">Rp 0</span></div>';
+  if(asetTetap>0){
+    asetHTML+=
+      '<div class="nst" style="margin-top:14px">Aset Tetap</div>'+
+      '<div class="rrow"><div><div class="rc">Peralatan &amp; Inventaris</div><div style="font-size:11px;color:var(--subtle);margin-top:1px">Nilai perolehan aset tetap</div></div><span class="mono" style="color:var(--blue)">'+fmt(asetTetap)+'</span></div>';
+  }
+  asetHTML+='<div class="rsub" style="margin-top:10px"><span>Total Aset</span><span class="mono" style="color:var(--gold)">'+fmt(totA)+'</span></div>';
+  document.getElementById('neraca-aset').innerHTML=asetHTML;
 
   document.getElementById('neraca-liab').innerHTML=
     '<div class="nct">LIABILITAS &amp; EKUITAS</div>'+
