@@ -83,6 +83,10 @@ tbody tr:hover td{background:rgba(255,255,255,.02)}
 .badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:99px;font-size:11.5px;font-weight:500}
 .badge.in{background:var(--gbg);color:var(--green)}
 .badge.out{background:var(--rbg);color:var(--red)}
+.badge.piutang{background:var(--bbg);color:var(--blue)}
+.badge.utang-new{background:rgba(188,140,255,.1);color:#BC8CFF}
+.badge.modal-in{background:rgba(230,179,37,.12);color:var(--gold)}
+.badge.aset-badge{background:rgba(240,136,62,.1);color:#F0883E}
 .mono{font-family:'DM Mono',monospace;font-size:13px}
 
 /* ─── Forms ─── */
@@ -99,6 +103,10 @@ select option{background:#161B22}
 .tbtn svg{width:15px;height:15px}
 .tbtn.sel-in{background:var(--gbg);border-color:var(--green);color:var(--green)}
 .tbtn.sel-out{background:var(--rbg);border-color:var(--red);color:var(--red)}
+.tbtn.sel-piutang{background:var(--bbg);border-color:var(--blue);color:var(--blue)}
+.tbtn.sel-utang{background:rgba(188,140,255,.12);border-color:#BC8CFF;color:#BC8CFF}
+.tbtn.sel-modal{background:rgba(230,179,37,.12);border-color:var(--gold);color:var(--gold)}
+.tbtn.sel-aset{background:rgba(240,136,62,.12);border-color:#F0883E;color:#F0883E}
 
 .sbtn{width:100%;padding:13px;background:var(--gold);color:#000;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;margin-top:4px}
 .sbtn:hover{opacity:.9}
@@ -241,6 +249,24 @@ select option{background:#161B22}
             Pengeluaran
           </button>
         </div>
+        <div class="ttog" style="margin-top:8px">
+          <button id="btn-piutang" class="tbtn" onclick="setType('piutang')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+            Piutang Usaha
+          </button>
+          <button id="btn-utang" class="tbtn" onclick="setType('utang')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Utang
+          </button>
+          <button id="btn-modal" class="tbtn" onclick="setType('modal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Modal
+          </button>
+          <button id="btn-aset" class="tbtn" onclick="setType('aset')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><line x1="6" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="18" y2="10"/></svg>
+            Aset Tetap
+          </button>
+        </div>
       </div>
       <div class="fg2">
         <div class="fgrp"><label class="flbl">Tanggal</label><input type="date" id="f-date"/></div>
@@ -249,6 +275,16 @@ select option{background:#161B22}
       <div class="fg2">
         <div class="fgrp"><label class="flbl">Kategori</label><select id="f-cat"><option value="">— Pilih kategori —</option></select></div>
         <div class="fgrp"><label class="flbl">Keterangan</label><input type="text" id="f-desc" placeholder="Contoh: Penjualan ke Toko Maju"/></div>
+      </div>
+      <div class="fg2" id="dep-row" style="display:none;margin-bottom:0">
+        <div class="fgrp">
+          <label class="flbl">Tarif Depresiasi (%/tahun)</label>
+          <input type="number" id="f-dep" placeholder="mis. 25 → umur ekonomis 4 thn" min="0" max="100" step="1"/>
+        </div>
+        <div class="fgrp">
+          <label class="flbl">Metode Depresiasi</label>
+          <select id="f-depmethod"><option value="sl">Garis Lurus (Straight-Line)</option></select>
+        </div>
       </div>
       <button class="sbtn" onclick="addTxn()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -270,6 +306,10 @@ select option{background:#161B22}
           <option value="">Semua jenis</option>
           <option value="income">Pemasukan</option>
           <option value="expense">Pengeluaran</option>
+          <option value="piutang">Piutang</option>
+          <option value="utang">Utang</option>
+          <option value="modal">Modal</option>
+          <option value="aset">Aset Tetap</option>
         </select>
         <select class="sf" id="s-cat" onchange="renderDaftar()">
           <option value="">Semua kategori</option>
@@ -295,7 +335,7 @@ select option{background:#161B22}
     </div>
     <div class="card" id="lr-report"></div>
     <div class="ibox">
-      <strong>Cara membaca laporan ini:</strong> Laba Rugi menunjukkan hasil operasi usaha dalam seluruh periode tercatat. Margin laba = Laba Bersih ÷ Total Pendapatan × 100%. Semakin tinggi margin, semakin efisien usaha Anda mengelola biaya.
+      <strong>Cara membaca laporan ini:</strong> Laporan ini berbasis akrual — pendapatan termasuk piutang yang belum diterima, beban termasuk utang usaha yang belum dibayar dan beban penyusutan aset tetap. Margin laba = Laba Bersih ÷ Total Pendapatan × 100%. Untuk pergerakan kas aktual, lihat laporan Arus Kas.
     </div>
   </div>
 
@@ -308,7 +348,7 @@ select option{background:#161B22}
       <div class="card" id="neraca-liab"></div>
     </div>
     <div class="ibox">
-      <strong>Prinsip dasar neraca:</strong> Persamaan akuntansi — Aset = Liabilitas + Ekuitas — harus selalu seimbang. Jika usaha Anda tidak punya utang, seluruh aset berasal dari modal sendiri (ekuitas). Saldo Kas = Modal Awal + Total Laba Bersih.
+      <strong>Prinsip dasar neraca:</strong> Persamaan akuntansi — Aset = Liabilitas + Ekuitas — harus selalu seimbang. Kas mencerminkan uang tunai aktual; piutang adalah tagihan yang belum diterima; aset tetap ditampilkan sebesar nilai buku (harga perolehan dikurangi akumulasi depresiasi). Catat utang, piutang, modal, dan aset tetap lewat menu Input Transaksi.
     </div>
   </div>
 
@@ -344,6 +384,10 @@ var modal = 10000000, txnId = 300, curType = 'income';
 
 var incCats = ['Penjualan Produk','Pendapatan Jasa','Komisi','Pendapatan Lain'];
 var expCats = ['HPP / Bahan Baku','Gaji Karyawan','Sewa Tempat','Listrik & Air','Transportasi','Marketing & Iklan','Peralatan & Inventaris','Operasional Lain'];
+var piutangCats=['Catat Piutang Baru','Terima Pembayaran Piutang'];
+var utangCats=['Utang Usaha Baru','Utang Bank / Pinjaman','Bayar Utang Usaha','Bayar Cicilan Bank'];
+var modalCats=['Tambahan Modal Pemilik','Penarikan Modal (Prive)'];
+var asetCats=['Kendaraan','Peralatan Kantor','Mesin & Peralatan','Bangunan','Furnitur & Perlengkapan','Aset Tetap Lain'];
 
 var txns = [
   {id:1,date:'2024-01-05',desc:'Penjualan ke Toko Maju Jaya',cat:'Penjualan Produk',type:'income',amt:4500000},
@@ -361,7 +405,7 @@ var txns = [
   {id:13,date:'2024-02-10',desc:'Jasa desain logo klien B',cat:'Pendapatan Jasa',type:'income',amt:1500000},
   {id:14,date:'2024-02-14',desc:'Sewa ruko Februari',cat:'Sewa Tempat',type:'expense',amt:1200000},
   {id:15,date:'2024-02-15',desc:'Gaji karyawan Februari',cat:'Gaji Karyawan',type:'expense',amt:3000000},
-  {id:16,date:'2024-02-20',desc:'Beli laptop untuk operasional',cat:'Peralatan & Inventaris',type:'expense',amt:7500000},
+  {id:16,date:'2024-02-20',desc:'Beli laptop untuk operasional',cat:'Peralatan Kantor',type:'aset',amt:7500000,depRate:25},
   {id:17,date:'2024-02-22',desc:'Penjualan produk reguler',cat:'Penjualan Produk',type:'income',amt:3800000},
   {id:18,date:'2024-02-25',desc:'Listrik & air Februari',cat:'Listrik & Air',type:'expense',amt:380000},
   {id:19,date:'2024-03-02',desc:'Penjualan batch Maret',cat:'Penjualan Produk',type:'income',amt:6200000},
@@ -378,11 +422,19 @@ var txns = [
 ═══════════════════════════════════ */
 var MN = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'Mei','06':'Jun','07':'Jul','08':'Agu','09':'Sep','10':'Okt','11':'Nov','12':'Des'};
 
-function fmt(n){return 'Rp\u00A0'+Math.round(n).toLocaleString('id-ID')}
+function fmt(n){return 'Rp '+Math.round(n).toLocaleString('id-ID')}
 function fmtK(n){var v=Math.abs(Math.round(n));if(v>=1000000)return 'Rp '+(v/1000000).toFixed(1)+'jt';if(v>=1000)return 'Rp '+(v/1000).toFixed(0)+'rb';return 'Rp '+v}
 function sumBy(type){return txns.filter(function(t){return t.type===type}).reduce(function(s,t){return s+t.amt},0)}
 function groupBy(type){var g={};txns.filter(function(t){return t.type===type}).forEach(function(t){g[t.cat]=(g[t.cat]||0)+t.amt});return g}
-function months(){var m={};txns.forEach(function(t){var k=t.date.slice(0,7);if(!m[k])m[k]={income:0,expense:0};m[k][t.type]+=t.amt});return m}
+function months(){var m={};txns.forEach(function(t){var k=t.date.slice(0,7);if(!m[k])m[k]={income:0,expense:0};if(t.type==='income'||(t.type==='piutang'&&t.cat==='Catat Piutang Baru'))m[k].income+=t.amt;if(t.type==='expense'||(t.type==='utang'&&t.cat==='Utang Usaha Baru'))m[k].expense+=t.amt});return m}
+function cashByMonth(){var m={};txns.forEach(function(t){var k=t.date.slice(0,7);if(!m[k])m[k]={cashin:0,cashout:0};if(t.type==='income'||(t.type==='piutang'&&t.cat==='Terima Pembayaran Piutang')||(t.type==='utang'&&t.cat==='Utang Bank / Pinjaman')||(t.type==='modal'&&t.cat==='Tambahan Modal Pemilik'))m[k].cashin+=t.amt;if(t.type==='expense'||t.type==='aset'||(t.type==='utang'&&(t.cat==='Bayar Utang Usaha'||t.cat==='Bayar Cicilan Bank'))||(t.type==='modal'&&t.cat==='Penarikan Modal (Prive)'))m[k].cashout+=t.amt});return m}
+function sumTxn(fn){return txns.filter(fn).reduce(function(s,t){return s+t.amt},0)}
+function calcDepreciation(){var today=new Date(),total=0;txns.filter(function(t){return t.type==='aset'}).forEach(function(t){var pd=new Date(t.date+'T00:00:00');var yr=(today-pd)/(365.25*24*3600*1000);if(yr<0)yr=0;var ad=t.amt*((t.depRate||0)/100);total+=Math.min(t.amt,ad*yr)});return Math.round(total)}
+function accrualIncome(){return sumBy('income')+sumTxn(function(t){return t.type==='piutang'&&t.cat==='Catat Piutang Baru'})}
+function accrualExpense(){return sumBy('expense')+sumTxn(function(t){return t.type==='utang'&&t.cat==='Utang Usaha Baru'})+calcDepreciation()}
+function realKas(){return modal+sumBy('income')+sumTxn(function(t){return t.type==='piutang'&&t.cat==='Terima Pembayaran Piutang'})+sumTxn(function(t){return t.type==='utang'&&t.cat==='Utang Bank / Pinjaman'})+sumTxn(function(t){return t.type==='modal'&&t.cat==='Tambahan Modal Pemilik'})-sumBy('expense')-sumTxn(function(t){return t.type==='aset'})-sumTxn(function(t){return t.type==='utang'&&t.cat==='Bayar Utang Usaha'})-sumTxn(function(t){return t.type==='utang'&&t.cat==='Bayar Cicilan Bank'})-sumTxn(function(t){return t.type==='modal'&&t.cat==='Penarikan Modal (Prive)'})}
+function txnBadge(t){if(t.type==='income')return'<span class="badge in">↑ Pemasukan</span>';if(t.type==='expense')return'<span class="badge out">↓ Pengeluaran</span>';if(t.type==='aset')return'<span class="badge aset-badge">🏷 Aset Tetap</span>';if(t.type==='piutang'&&t.cat==='Catat Piutang Baru')return'<span class="badge piutang">📋 Piutang Baru</span>';if(t.type==='piutang')return'<span class="badge in">↑ Terima Piutang</span>';if(t.type==='utang'&&t.cat==='Utang Bank / Pinjaman')return'<span class="badge utang-new">🏦 Pinjaman Bank</span>';if(t.type==='utang'&&t.cat==='Utang Usaha Baru')return'<span class="badge utang-new">📄 Utang Usaha</span>';if(t.type==='utang')return'<span class="badge out">↓ '+t.cat+'</span>';if(t.type==='modal'&&t.cat==='Tambahan Modal Pemilik')return'<span class="badge modal-in">💰 Tambah Modal</span>';return'<span class="badge out">↓ Penarikan Modal</span>'}
+function txnAmtColor(t){if(t.type==='income')return'var(--green)';if(t.type==='expense')return'var(--red)';if(t.type==='aset')return'#F0883E';if(t.type==='piutang'&&t.cat==='Catat Piutang Baru')return'var(--blue)';if(t.type==='piutang')return'var(--green)';if(t.type==='utang'&&t.cat==='Utang Bank / Pinjaman')return'var(--blue)';if(t.type==='utang'&&t.cat==='Utang Usaha Baru')return'#BC8CFF';if(t.type==='utang')return'var(--red)';if(t.type==='modal'&&t.cat==='Tambahan Modal Pemilik')return'var(--gold)';return'var(--red)'}
 
 /* ═══════════════════════════════════
    STORAGE
@@ -434,12 +486,12 @@ function editModal(){
 function mc(lbl,val,cls,sub){return '<div class="mc"><div class="mlabel">'+lbl+'</div><div class="mvalue '+cls+'">'+fmt(val)+'</div><div class="msub">'+sub+'</div></div>'}
 
 function renderDash(){
-  var totI=sumBy('income'),totE=sumBy('expense'),net=totI-totE,kas=modal+net;
+  var totI=accrualIncome(),totE=accrualExpense(),net=totI-totE,kas=realKas();
   document.getElementById('dash-metrics').innerHTML=
     mc('Total Pendapatan',totI,'green','Seluruh pemasukan tercatat')+
     mc('Total Beban',totE,'red','Seluruh pengeluaran tercatat')+
     mc('Laba / Rugi Bersih',Math.abs(net),net>=0?'green':'red',(net>=0?'Untung ':'Rugi ')+(totI>0?((Math.abs(net)/totI)*100).toFixed(1):0)+'%')+
-    mc('Saldo Kas',kas,kas>=0?'gold':'red','Modal awal + laba bersih');
+    mc('Saldo Kas',kas,kas>=0?'gold':'red','Uang tunai aktual saat ini');
 
   var ms=months(),mk=Object.keys(ms).sort();
   var ml=mk.map(function(k){var p=k.split('-');return MN[p[1]]+' '+p[0]});
@@ -450,7 +502,7 @@ function renderDash(){
 
   var rec=[...txns].sort(function(a,b){return b.date.localeCompare(a.date)}).slice(0,7);
   document.getElementById('dash-recent').innerHTML='<table><thead><tr><th>Tanggal</th><th>Keterangan</th><th>Kategori</th><th>Jenis</th><th style="text-align:right">Jumlah</th></tr></thead><tbody>'+
-    rec.map(function(t){return'<tr><td class="mono" style="color:var(--muted)">'+t.date+'</td><td>'+t.desc+'</td><td style="color:var(--muted);font-size:12px">'+t.cat+'</td><td><span class="badge '+(t.type==='income'?'in':'out')+'">'+(t.type==='income'?'↑ Masuk':'↓ Keluar')+'</span></td><td style="text-align:right;color:'+(t.type==='income'?'var(--green)':'var(--red)')+'" class="mono">'+fmt(t.amt)+'</td></tr>'}).join('')+'</tbody></table>';
+    rec.map(function(t){return'<tr><td class="mono" style="color:var(--muted)">'+t.date+'</td><td>'+t.desc+'</td><td style="color:var(--muted);font-size:12px">'+t.cat+'</td><td>'+txnBadge(t)+'</td><td style="text-align:right;color:'+txnAmtColor(t)+'" class="mono">'+fmt(t.amt)+'</td></tr>'}).join('')+'</tbody></table>';
 }
 
 /* ═══════════════════════════════════
@@ -458,10 +510,14 @@ function renderDash(){
 ═══════════════════════════════════ */
 function setType(t){
   curType=t;
-  document.getElementById('btn-in').className='tbtn'+(t==='income'?' sel-in':'');
-  document.getElementById('btn-out').className='tbtn'+(t==='expense'?' sel-out':'');
-  var cats=t==='income'?incCats:expCats;
+  var selMap={income:'sel-in',expense:'sel-out',piutang:'sel-piutang',utang:'sel-utang',modal:'sel-modal',aset:'sel-aset'};
+  var btnMap={income:'btn-in',expense:'btn-out',piutang:'btn-piutang',utang:'btn-utang',modal:'btn-modal',aset:'btn-aset'};
+  Object.values(btnMap).forEach(function(id){document.getElementById(id).className='tbtn'});
+  document.getElementById(btnMap[t]).className='tbtn '+selMap[t];
+  var cats=t==='income'?incCats:t==='expense'?expCats:t==='piutang'?piutangCats:t==='utang'?utangCats:t==='modal'?modalCats:asetCats;
   document.getElementById('f-cat').innerHTML='<option value="">— Pilih kategori —</option>'+cats.map(function(c){return'<option>'+c+'</option>'}).join('');
+  document.getElementById('dep-row').style.display=t==='aset'?'grid':'none';
+  if(t==='aset')document.getElementById('f-dep').value='';
 }
 
 function addTxn(){
@@ -471,13 +527,20 @@ function addTxn(){
       s=document.getElementById('f-desc').value.trim();
   if(!d||!a||!c||!s){alert('Mohon lengkapi semua field!');return}
   if(a<=0){alert('Jumlah harus lebih dari 0');return}
-  txns.push({id:++txnId,date:d,desc:s,cat:c,type:curType,amt:a});
+  var obj={id:++txnId,date:d,desc:s,cat:c,type:curType,amt:a};
+  if(curType==='aset'){
+    var dr=parseFloat(document.getElementById('f-dep').value);
+    if(isNaN(dr)||dr<0||dr>100){alert('Tarif depresiasi harus antara 0–100%');return}
+    obj.depRate=dr;
+  }
+  txns.push(obj);
   txns.sort(function(a,b){return a.date.localeCompare(b.date)});
   save();
   document.getElementById('f-date').value='';
   document.getElementById('f-amt').value='';
   document.getElementById('f-cat').value='';
   document.getElementById('f-desc').value='';
+  if(curType==='aset')document.getElementById('f-dep').value='';
   var t=document.getElementById('toast');t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3500);
 }
 
@@ -501,7 +564,7 @@ function renderDaftar(){
   }).sort(function(a,b){return b.date.localeCompare(a.date)});
 
   document.getElementById('txn-body').innerHTML=filtered.map(function(t){
-    return'<tr><td class="mono" style="color:var(--muted);font-size:12px">'+t.date+'</td><td>'+t.desc+'</td><td style="color:var(--muted);font-size:12.5px">'+t.cat+'</td><td><span class="badge '+(t.type==='income'?'in':'out')+'">'+(t.type==='income'?'↑ Pemasukan':'↓ Pengeluaran')+'</span></td><td style="text-align:right;color:'+(t.type==='income'?'var(--green)':'var(--red)')+'" class="mono">'+fmt(t.amt)+'</td><td><button class="dbtn" onclick="delTxn('+t.id+')" title="Hapus transaksi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg></button></td></tr>'
+    return'<tr><td class="mono" style="color:var(--muted);font-size:12px">'+t.date+'</td><td>'+t.desc+'</td><td style="color:var(--muted);font-size:12.5px">'+t.cat+(t.type==='aset'&&t.depRate?' · '+t.depRate+'%/thn':'')+'</td><td>'+txnBadge(t)+'</td><td style="text-align:right;color:'+txnAmtColor(t)+'" class="mono">'+fmt(t.amt)+'</td><td><button class="dbtn" onclick="delTxn('+t.id+')" title="Hapus transaksi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></svg></button></td></tr>'
   }).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:28px">Tidak ada transaksi ditemukan</td></tr>';
 
   var tI=filtered.filter(function(t){return t.type==='income'}).reduce(function(s,t){return s+t.amt},0);
@@ -519,18 +582,18 @@ function delTxn(id){
    LABA RUGI
 ═══════════════════════════════════ */
 function renderLR(){
-  var tI=sumBy('income'),tE=sumBy('expense'),net=tI-tE,mg=tI>0?((net/tI)*100).toFixed(1):0;
+  var tI=accrualIncome(),tE=accrualExpense(),net=tI-tE,mg=tI>0?((net/tI)*100).toFixed(1):0;
+  var accumDep=calcDepreciation();
   document.getElementById('lr-metrics').innerHTML=
-    mc('Total Pendapatan',tI,'green','Semua pemasukan')+
-    mc('Total Beban',tE,'red','Semua pengeluaran')+
+    mc('Total Pendapatan',tI,'green','Termasuk piutang dagang')+
+    mc('Total Beban',tE,'red','Termasuk dep. '+fmt(accumDep))+
     mc(net>=0?'Laba Bersih':'Rugi Bersih',Math.abs(net),net>=0?'green':'red','Margin: '+mg+'%');
-
-  var ig=groupBy('income'),eg=groupBy('expense');
+  var ig={};txns.filter(function(t){return t.type==='income'||(t.type==='piutang'&&t.cat==='Catat Piutang Baru')}).forEach(function(t){ig[t.cat]=(ig[t.cat]||0)+t.amt});
+  var eg={};txns.filter(function(t){return t.type==='expense'||(t.type==='utang'&&t.cat==='Utang Usaha Baru')}).forEach(function(t){eg[t.cat]=(eg[t.cat]||0)+t.amt});
+  if(accumDep>0)eg['Beban Penyusutan Aset']=(eg['Beban Penyusutan Aset']||0)+accumDep;
   CHARTS['ip']=new Chart(document.getElementById('ch-incpie'),{type:'doughnut',data:{labels:Object.keys(ig),datasets:[{data:Object.values(ig),backgroundColor:COLORS,borderColor:'#161B22',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:LEGEND,tooltip:TIPOPT}}});
-
   var allC=[...new Set([...Object.keys(ig),...Object.keys(eg)])];
   CHARTS['lb']=new Chart(document.getElementById('ch-lrbar'),{type:'bar',data:{labels:allC,datasets:[{label:'Pendapatan',data:allC.map(function(c){return ig[c]||0}),backgroundColor:'rgba(63,185,80,.7)',borderRadius:3},{label:'Beban',data:allC.map(function(c){return eg[c]||0}),backgroundColor:'rgba(248,81,73,.7)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEGEND,tooltip:TIPOPT},scales:{x:{grid:{color:'rgba(48,54,61,.5)'},ticks:{color:'#7D8590',font:{family:'DM Sans',size:9},maxRotation:35}},y:YSCALE}}});
-
   var ih=Object.entries(ig).map(function(e){return'<div class="rrow"><span class="rc">'+e[0]+'</span><span class="mono" style="color:var(--green)">'+fmt(e[1])+'</span></div>'}).join('');
   var eh=Object.entries(eg).map(function(e){return'<div class="rrow"><span class="rc">'+e[0]+'</span><span class="mono" style="color:var(--red)">'+fmt(e[1])+'</span></div>'}).join('');
   document.getElementById('lr-report').innerHTML=
@@ -543,38 +606,39 @@ function renderLR(){
    NERACA
 ═══════════════════════════════════ */
 function renderNeraca(){
-  var tI=sumBy('income'),tE=sumBy('expense');
-  // Pisahkan capex (Peralatan & Inventaris) dari opex — capex mengurangi kas tapi membentuk aset tetap
-  var capex=txns.filter(function(t){return t.type==='expense'&&t.cat==='Peralatan & Inventaris'}).reduce(function(s,t){return s+t.amt},0);
-  var opex=tE-capex;
-  var net=tI-opex,kas=modal+tI-tE,asetTetap=capex;
-  var totA=kas+asetTetap,totL=0,totEk=modal+net,totLE=totL+totEk,ok=Math.abs(totA-totLE)<1;
-
+  var grossAset=sumTxn(function(t){return t.type==='aset'});
+  var accumDep=calcDepreciation();
+  var netAset=Math.max(0,grossAset-accumDep);
+  var piutangBal=Math.max(0,sumTxn(function(t){return t.type==='piutang'&&t.cat==='Catat Piutang Baru'})-sumTxn(function(t){return t.type==='piutang'&&t.cat==='Terima Pembayaran Piutang'}));
+  var utangUsaha=Math.max(0,sumTxn(function(t){return t.type==='utang'&&t.cat==='Utang Usaha Baru'})-sumTxn(function(t){return t.type==='utang'&&t.cat==='Bayar Utang Usaha'}));
+  var utangBank=Math.max(0,sumTxn(function(t){return t.type==='utang'&&t.cat==='Utang Bank / Pinjaman'})-sumTxn(function(t){return t.type==='utang'&&t.cat==='Bayar Cicilan Bank'}));
+  var modalPemilik=modal+sumTxn(function(t){return t.type==='modal'&&t.cat==='Tambahan Modal Pemilik'})-sumTxn(function(t){return t.type==='modal'&&t.cat==='Penarikan Modal (Prive)'});
+  var kas=realKas();
+  var labaDitahan=accrualIncome()-accrualExpense();
+  var totA=kas+piutangBal+netAset;
+  var totL=utangUsaha+utangBank;
+  var totEk=modalPemilik+labaDitahan;
+  var totLE=totL+totEk;
+  var ok=Math.abs(totA-totLE)<1;
   document.getElementById('neraca-banner').innerHTML='<div style="padding:13px 16px;border-radius:8px;display:flex;align-items:center;gap:12px;background:'+(ok?'rgba(63,185,80,.08)':'rgba(248,81,73,.08)')+';border:1px solid '+(ok?'rgba(63,185,80,.3)':'rgba(248,81,73,.3)')+'"><span style="font-size:20px">'+(ok?'✅':'❌')+'</span><div><div style="font-weight:600;color:'+(ok?'var(--green)':'var(--red)')+'">'+(ok?'Neraca Seimbang':'Neraca Tidak Seimbang')+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Aset = Liabilitas + Ekuitas = '+fmt(totA)+'</div></div></div>';
-
-  var asetHTML=
-    '<div class="nct">ASET</div>'+
-    '<div class="nst">Aset Lancar</div>'+
-    '<div class="rrow"><div><div class="rc">Kas &amp; Bank</div><div style="font-size:11px;color:var(--subtle);margin-top:1px">Modal awal + laba operasional</div></div><span class="mono" style="color:var(--green)">'+fmt(kas)+'</span></div>'+
-    '<div class="rrow"><span class="rc">Piutang Usaha</span><span class="mono" style="color:var(--muted)">Rp 0</span></div>'+
-    '<div class="rrow"><span class="rc">Persediaan Barang</span><span class="mono" style="color:var(--muted)">Rp 0</span></div>';
-  if(asetTetap>0){
-    asetHTML+=
-      '<div class="nst" style="margin-top:14px">Aset Tetap</div>'+
-      '<div class="rrow"><div><div class="rc">Peralatan &amp; Inventaris</div><div style="font-size:11px;color:var(--subtle);margin-top:1px">Nilai perolehan aset tetap</div></div><span class="mono" style="color:var(--blue)">'+fmt(asetTetap)+'</span></div>';
-  }
-  asetHTML+='<div class="rsub" style="margin-top:10px"><span>Total Aset</span><span class="mono" style="color:var(--gold)">'+fmt(totA)+'</span></div>';
-  document.getElementById('neraca-aset').innerHTML=asetHTML;
-
+  var aH='<div class="nct">ASET</div><div class="nst">Aset Lancar</div>'+
+    '<div class="rrow"><div><div class="rc">Kas &amp; Bank</div><div style="font-size:11px;color:var(--subtle);margin-top:1px">Saldo kas aktual</div></div><span class="mono" style="color:var(--green)">'+fmt(kas)+'</span></div>'+
+    '<div class="rrow"><div><div class="rc">Piutang Usaha</div><div style="font-size:11px;color:var(--subtle);margin-top:1px">Tagihan yang belum diterima</div></div><span class="mono" style="color:var(--blue)">'+fmt(piutangBal)+'</span></div>'+
+    '<div class="rsub" style="margin-top:6px"><span>Total Aset Lancar</span><span class="mono">'+fmt(kas+piutangBal)+'</span></div>';
+  if(grossAset>0){aH+='<div class="nst" style="margin-top:14px">Aset Tetap</div>'+
+    '<div class="rrow"><span class="rc">Harga Perolehan</span><span class="mono" style="color:var(--muted)">'+fmt(grossAset)+'</span></div>'+
+    '<div class="rrow"><span class="rc">Akumulasi Depresiasi</span><span class="mono" style="color:var(--red)">('+fmt(accumDep)+')</span></div>'+
+    '<div class="rsub" style="margin-top:6px"><span>Nilai Buku Bersih</span><span class="mono" style="color:#F0883E">'+fmt(netAset)+'</span></div>';}
+  aH+='<div class="rsub" style="margin-top:10px;background:rgba(230,179,37,.07);border:1px solid rgba(230,179,37,.2)"><span>Total Aset</span><span class="mono" style="color:var(--gold)">'+fmt(totA)+'</span></div>';
+  document.getElementById('neraca-aset').innerHTML=aH;
   document.getElementById('neraca-liab').innerHTML=
-    '<div class="nct">LIABILITAS &amp; EKUITAS</div>'+
-    '<div class="nst">Liabilitas</div>'+
-    '<div class="rrow"><span class="rc">Utang Usaha</span><span class="mono" style="color:var(--muted)">Rp 0</span></div>'+
-    '<div class="rrow"><span class="rc">Utang Bank</span><span class="mono" style="color:var(--muted)">Rp 0</span></div>'+
-    '<div class="rsub" style="margin-top:6px"><span>Total Liabilitas</span><span class="mono">Rp 0</span></div>'+
+    '<div class="nct">LIABILITAS &amp; EKUITAS</div><div class="nst">Liabilitas</div>'+
+    '<div class="rrow"><span class="rc">Utang Usaha</span><span class="mono" style="color:'+(utangUsaha>0?'#BC8CFF':'var(--muted)')+'">'+fmt(utangUsaha)+'</span></div>'+
+    '<div class="rrow"><span class="rc">Utang Bank</span><span class="mono" style="color:'+(utangBank>0?'var(--blue)':'var(--muted)')+'">'+fmt(utangBank)+'</span></div>'+
+    '<div class="rsub" style="margin-top:6px"><span>Total Liabilitas</span><span class="mono" style="color:'+(totL>0?'var(--red)':'var(--muted)')+'">'+fmt(totL)+'</span></div>'+
     '<div class="nst" style="margin-top:18px">Ekuitas</div>'+
-    '<div class="rrow"><span class="rc">Modal Pemilik</span><span class="mono" style="color:var(--gold)">'+fmt(modal)+'</span></div>'+
-    '<div class="rrow"><span class="rc">Laba Ditahan</span><span class="mono" style="color:'+(net>=0?'var(--green)':'var(--red)')+'">'+fmt(net)+'</span></div>'+
+    '<div class="rrow"><span class="rc">Modal Pemilik</span><span class="mono" style="color:var(--gold)">'+fmt(modalPemilik)+'</span></div>'+
+    '<div class="rrow"><span class="rc">Laba Ditahan</span><span class="mono" style="color:'+(labaDitahan>=0?'var(--green)':'var(--red)')+'">'+fmt(labaDitahan)+'</span></div>'+
     '<div class="rsub" style="margin-top:6px"><span>Total Ekuitas</span><span class="mono" style="color:var(--gold)">'+fmt(totEk)+'</span></div>'+
     '<div class="rsub" style="margin-top:8px;background:rgba(230,179,37,.07);border:1px solid rgba(230,179,37,.2)"><span>Total Liabilitas + Ekuitas</span><span class="mono" style="color:var(--gold)">'+fmt(totLE)+'</span></div>';
 }
@@ -583,22 +647,21 @@ function renderNeraca(){
    ARUS KAS
 ═══════════════════════════════════ */
 function renderAK(){
-  var tI=sumBy('income'),tE=sumBy('expense'),saldo=modal+tI-tE;
+  var totalCashIn=sumBy('income')+sumTxn(function(t){return t.type==='piutang'&&t.cat==='Terima Pembayaran Piutang'})+sumTxn(function(t){return t.type==='utang'&&t.cat==='Utang Bank / Pinjaman'})+sumTxn(function(t){return t.type==='modal'&&t.cat==='Tambahan Modal Pemilik'});
+  var totalCashOut=sumBy('expense')+sumTxn(function(t){return t.type==='aset'})+sumTxn(function(t){return t.type==='utang'&&(t.cat==='Bayar Utang Usaha'||t.cat==='Bayar Cicilan Bank')})+sumTxn(function(t){return t.type==='modal'&&t.cat==='Penarikan Modal (Prive)'});
+  var saldo=realKas();
   document.getElementById('ak-metrics').innerHTML=
-    mc('Total Kas Masuk',tI,'green','Seluruh periode')+
-    mc('Total Kas Keluar',tE,'red','Seluruh periode')+
-    mc('Saldo Kas Akhir',saldo,saldo>=0?'gold':'red','Modal + semua transaksi');
-
-  var ms=months(),mk=Object.keys(ms).sort();
+    mc('Total Kas Masuk',totalCashIn,'green','Seluruh periode')+
+    mc('Total Kas Keluar',totalCashOut,'red','Termasuk pembelian aset')+
+    mc('Saldo Kas Akhir',saldo,saldo>=0?'gold':'red','Modal + semua transaksi kas');
+  var ms=cashByMonth(),mk=Object.keys(ms).sort();
   var ml=mk.map(function(k){var p=k.split('-');return MN[p[1]]+' '+p[0]});
-  var cum=modal,saldos=mk.map(function(k){cum+=ms[k].income-ms[k].expense;return cum});
-
-  CHARTS['cf']=new Chart(document.getElementById('ch-cashflow'),{type:'line',data:{labels:ml,datasets:[{label:'Saldo Kas',data:saldos,borderColor:'#E6B325',backgroundColor:'rgba(230,179,37,.07)',borderWidth:2,fill:true,tension:.35,pointBackgroundColor:'#E6B325',pointRadius:4},{label:'Kas Masuk',data:mk.map(function(k){return ms[k].income}),borderColor:'#3FB950',borderWidth:1.5,tension:.35,borderDash:[5,4],pointRadius:3,pointBackgroundColor:'#3FB950'},{label:'Kas Keluar',data:mk.map(function(k){return ms[k].expense}),borderColor:'#F85149',borderWidth:1.5,tension:.35,borderDash:[5,4],pointRadius:3,pointBackgroundColor:'#F85149'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEGEND,tooltip:TIPOPT},scales:{x:XSCALE,y:YSCALE}}});
-
+  var cum=modal,saldos=mk.map(function(k){cum+=ms[k].cashin-ms[k].cashout;return cum});
+  CHARTS['cf']=new Chart(document.getElementById('ch-cashflow'),{type:'line',data:{labels:ml,datasets:[{label:'Saldo Kas',data:saldos,borderColor:'#E6B325',backgroundColor:'rgba(230,179,37,.07)',borderWidth:2,fill:true,tension:.35,pointBackgroundColor:'#E6B325',pointRadius:4},{label:'Kas Masuk',data:mk.map(function(k){return ms[k].cashin}),borderColor:'#3FB950',borderWidth:1.5,tension:.35,borderDash:[5,4],pointRadius:3,pointBackgroundColor:'#3FB950'},{label:'Kas Keluar',data:mk.map(function(k){return ms[k].cashout}),borderColor:'#F85149',borderWidth:1.5,tension:.35,borderDash:[5,4],pointRadius:3,pointBackgroundColor:'#F85149'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:LEGEND,tooltip:TIPOPT},scales:{x:XSCALE,y:YSCALE}}});
   var c=modal;
   document.getElementById('ak-body').innerHTML=mk.map(function(k){
-    var p=k.split('-'),net=ms[k].income-ms[k].expense,prev=c;c+=net;
-    return'<tr><td style="font-weight:500">'+MN[p[1]]+' '+p[0]+'</td><td style="text-align:right;color:var(--green)" class="mono">'+fmt(ms[k].income)+'</td><td style="text-align:right;color:var(--red)" class="mono">'+fmt(ms[k].expense)+'</td><td style="text-align:right;color:'+(net>=0?'var(--green)':'var(--red)')+'" class="mono">'+(net>=0?'+':'')+fmt(net)+'</td><td style="text-align:right;color:var(--muted)" class="mono">'+fmt(prev)+'</td><td style="text-align:right;color:var(--gold);font-weight:600" class="mono">'+fmt(c)+'</td></tr>'
+    var p=k.split('-'),net=ms[k].cashin-ms[k].cashout,prev=c;c+=net;
+    return'<tr><td style="font-weight:500">'+MN[p[1]]+' '+p[0]+'</td><td style="text-align:right;color:var(--green)" class="mono">'+fmt(ms[k].cashin)+'</td><td style="text-align:right;color:var(--red)" class="mono">'+fmt(ms[k].cashout)+'</td><td style="text-align:right;color:'+(net>=0?'var(--green)':'var(--red)')+'" class="mono">'+(net>=0?'+':'')+fmt(net)+'</td><td style="text-align:right;color:var(--muted)" class="mono">'+fmt(prev)+'</td><td style="text-align:right;color:var(--gold);font-weight:600" class="mono">'+fmt(c)+'</td></tr>'
   }).join('');
 }
 
